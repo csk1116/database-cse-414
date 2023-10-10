@@ -1,5 +1,20 @@
 PRAGMA foreign_keys=ON;
 
+CREATE TABLE CARRIERS (
+    cid VARCHAR(7) PRIMARY KEY,
+    name VARCHAR(83)
+);
+
+CREATE TABLE MONTHS (
+    mid INT PRIMARY KEY,
+    month VARCHAR(9)
+);
+
+CREATE TABLE WEEKDAYS (
+    did INT PRIMARY KEY,
+    day_of_week VARCHAR(9)
+);
+
 CREATE TABLE FLIGHTS (
     fid INT PRIMARY KEY,
     month_id INT REFERENCES MONTHS(mid),  -- 1-12
@@ -20,20 +35,4 @@ CREATE TABLE FLIGHTS (
     capacity INT, 
     price INT            -- in $
 );
-
-CREATE TABLE CARRIERS (
-    cid VARCHAR(7) PRIMARY KEY,
-    name VARCHAR(83)
-);
-
-CREATE TABLE MONTHS (
-    mid INT PRIMARY KEY,
-    month VARCHAR(9)
-);
-
-CREATE TABLE WEEKDAYS (
-    did INT PRIMARY KEY,
-    day_of_week VARCHAR(9)
-);
-
 
