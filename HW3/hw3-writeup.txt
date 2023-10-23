@@ -1,0 +1,10 @@
+In my opinion, I would recommend using a cloud-hosted DBMS for the following reasons. 
+First of all, building our own database server could be a challenge because we have to 
+set up and manage server hardware and infrastructure. We may still have to purchase
+DBMS for our server. This could cost a significant amount of money and time. Therefore, 
+adapting a cloud-hosted DBMS is more cost-effective and time-efficient.
+
+Moreover, if someone is trying to prototype their idea/application, a cloud-hosted DBMS would 
+be a good choice. Since it manages things like versions, configurations, and settings with high 
+availability and security. In conclusion, I had a positive experience using Azure. I would 
+suggest people use cloud-hosted DBMS while they are developing their applications.

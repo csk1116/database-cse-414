@@ -5,7 +5,6 @@ FROM FLIGHTS AS f,
      CARRIERS AS c
 WHERE f.carrier_id = c.cid
       AND f.origin_city = 'Seattle WA'
-GROUP BY f.carrier_id,
-         f.origin_city
+GROUP BY f.carrier_id
 HAVING percentage > 0.5
 ORDER BY percentage;
