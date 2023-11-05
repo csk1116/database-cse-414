@@ -8,9 +8,10 @@ SELECT DISTINCT
                       AND canceled = 0
                       AND origin_city = f.origin_city
                 GROUP BY origin_city
-            ), 0) / count(f.origin_city) AS percentage
+            ), 0) / COUNT(f.origin_city) AS percentage
 FROM FLIGHTS AS f
 WHERE f.canceled = 0
 GROUP BY f.origin_city
 ORDER BY percentage,
          origin_city;
+

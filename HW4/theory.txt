@@ -1,0 +1,81 @@
+Part 3:
+
+a.  R(A,B,C,D,E), functional dependencies: D -> B, CE -> A
+
+    Normalize R:
+    1. find D+ = DB a "bad" FD. (DB != D and DB != [A,B,C,D,E])
+    2. decompose R into R1(B,D) and R2(A,C,D,E) <- (R - (BD) union D)
+
+    Normalize R1:
+    3. D+ = DB is in BCNF (BD  = R1)
+
+    Normalize R2: 
+    4. find CE+ = CEA a "bad" FD. (CEA != CE and CEA != [A,C,D,E])
+    5. decompose R2 into R3(A,C,E) and R4(C,D,E) <- (R2 - (CEA) union CE)
+    
+    Normalize R3:
+    6. CE+ = CEA is in BCNF (ACE = R3) 
+
+    Normalize R4:
+    7. CDE+ = CDE (Trivial FD) is in BCNF
+
+    Result: R1(B,D), R3(A,C,E), and R4(C,D,E)
+
+b.  S(A,B,C,D,E), functional dependencies: A -> E, BC -> A, DE ->B
+
+    Normalize S:
+    1. find A+ = AE a "bad" FD. (AE != A and AE != [A,B,C,D,E])
+    2. decompose S into S1(A,E) and S2(A,B,C,D) <- (S - (AE) union A)
+
+    Normalize S1:
+    3. A+ = AE is in BCNF (AE = S1)
+
+    Normalize S2:
+    4. find BC+ = BCA a "bad" FD. (BCA != BC and BCA != [A,B,C,D])
+    5. decompose S2 into S3(A,B,C) and S4(B,C,D) <- (S2 - (ABC) union BC)
+
+    Normalize S3:
+    6. BC+ = BCA is in BCNF (BCA = S3)
+
+    Normalize S4:
+    7. BCD+ = BCD (Trivial FD) is in BCNF
+
+    Result: S1(A,E), S3(A,B,C), and S4(B,C,D)
+
+c.  Ans: A -> A, B -> B, C -> C, D -> D (All trivial, cannot include any non-trivial fd) 
+    * A+ = A
+    * B+ = B
+    * C+ = C
+    * D+ = D
+    * AB+ = AB
+    * AC+ = AC
+    * AD+ = AD
+    * BC+ = BC
+    * BD+ = BD
+    * CD+ = CD
+    * ABC+ = ABC
+    * ABD+ = ABD
+    * ACD+ = ACD
+    * BCD+ = BCD
+    * ABCD+ = ABCD
+    * {}+ = {}
+
+d.  Ans: A -> B, B -> C, C -> D, D -> A or (Ａ -> BCD, B -> ACD, C -> ABD, D -> ABC)
+    * A+ = BCDA
+    * B+ = CDAB
+    * C+ = DABC
+    * D+ = ABCD
+    * {}+ = {}
+
+e.  Ans: B -> C, C -> B, A -> BD, D -> AB 
+    * B+ = BC
+    * C+ = BC
+    * A+ = ABCD
+    * D+ = ABCD
+    * {}+ = {}
+
+    Ans can also be B -> C, C -> B, select 1 fd from (1), select 1 fd from (2) 
+    * (1) (A -> BD , A -> CD,  A -> BCD) (2) (D -> AB, D -> AC, D ->ABC)
+
+
+
