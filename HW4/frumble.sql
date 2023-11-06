@@ -20,142 +20,178 @@ CREATE TABLE Sales (
 
 -- b. -- (using sqlite3)
 
--- check 1 -> 1 --
--- we have to check all non-trivial 1 -> 1 fds
+-- To make checking step less, I would like to check 3 to 1 dependencies first
+-- There are 4 combinations:
+-- 1. name, discount, month -> price
+-- 2. name, discount, price -> month
+-- 3. name, month, price -> discount
+-- 4. discount, month, price -> name
 
--- name -> discount (does not hold) --
+-- let's check 1. name, discount, month -> price
 SELECT COUNT(*)
 FROM Sales as s1,
      Sales as s2
 WHERE s1.name = s2.name
-      AND s1.discount != s2.discount;
--- query result: 3286, which means same name has different discounts.
-
--- name -> month (does not hold) --
-SELECT COUNT(*)
-FROM Sales as s1,
-     Sales as s2
-WHERE s1.name = s2.name
-      AND s1.month != s2.month;
--- query result: 4620, which means same name can be sold in different months.
-
--- name -> price (holds) --
-SELECT COUNT(*)
-FROM Sales as s1,
-     Sales as s2
-WHERE s1.name = s2.name
-      AND s1.price != s2.price;
--- query result: 0, which means each name has only one price.
-
--- discount -> name (does not hold) --
-SELECT COUNT(*)
-FROM Sales as s1,
-     Sales as s2
-WHERE s1.discount = s2.discount
-      AND s1.name != s2.name;
--- query result: 61398, which means same discount can be applied to different names.
-
--- discount -> month (does not hold) --
-SELECT COUNT(*)
-FROM Sales as s1,
-     Sales as s2
-WHERE s1.discount = s2.discount
-      AND s1.month != s2.month;
--- query result: 48032, which means same discount can appear in different months.
-
--- discount -> price (does not hold) --
-SELECT COUNT(*)
-FROM Sales as s1,
-     Sales as s2
-WHERE s1.discount = s2.discount
-      AND s1.price != s2.price;
--- query result: 55170, which means same discount can be applied to different price.
-
--- month -> name (does not hold) --
-SELECT COUNT(*)
-FROM Sales as s1,
-     Sales as s2
-WHERE s1.month = s2.month
-      AND s1.name != s2.name;
--- query result: 14700, which means same month can sale different name.
-
--- month -> discount (holds) --
-SELECT COUNT(*)
-FROM Sales as s1,
-     Sales as s2
-WHERE s1.month = s2.month
-      AND s1.discount != s2.discount;
--- query result: 0, which means each month has only one discount.
-
--- month -> price (does not hold) --
-SELECT COUNT(*)
-FROM Sales as s1,
-     Sales as s2
-WHERE s1.month = s2.month
-      AND s1.price != s2.price;
--- query result: 13208, which means same month can have different prices.
-
--- price -> name (does not hold) --
-SELECT COUNT(*)
-FROM Sales as s1,
-     Sales as s2
-WHERE s1.price = s2.price
-      AND s1.name != s2.name;
--- query result: 17906, which means same price can be assigned to different names.
-
--- price -> discount (does not hold) --
-SELECT COUNT(*)
-FROM Sales as s1,
-     Sales as s2
-WHERE s1.price = s2.price
-      AND s1.discount != s2.discount;
--- query result: 14964, which means same price can have different discounts.
-
--- price -> month (does not hold) --
-SELECT COUNT(*)
-FROM Sales as s1,
-     Sales as s2
-WHERE s1.price = s2.price
-      AND s1.month != s2.month;
--- query result: 21034, which means same price can appear in different months.
-
-
--- Until now, we got:
--- name -> price, month -> discount 
-
-
--- check 2 -> 2 --
--- we can derive: name, month -> price, discount (no need to check)
--- also we don't need to check (name, price) -> (discount, month),
--- (discount, month -> name, price), (discount, price) -> (name, month)
-
--- name, discount -> month, price (holds)
-SELECT COUNT(*) 
-FROM Sales as s1,
-     Sales as s2
-WHERE s1.name = s2.name 
       AND s1.discount = s2.discount
-      AND s1.month != s2.month
+      AND s1.month = s2.month
       AND s1.price != s2.price;
--- query result: 0, which means each (name, discount) has unique (month, price).
+-- query result: 0, name, discount, month -> price (holds)
 
--- month, price -> name, discount (holds)
-SELECT COUNT(*) 
+-- This means at least one attribute holds X -> price
+-- let's check individually
+
+-- check name -> price
+SELECT COUNT(*)
 FROM Sales as s1,
      Sales as s2
-WHERE s1.name != s2.name 
-      AND s1.discount != s2.discount
+WHERE s1.name = s2.name
+      AND s1.price != s2.price;
+-- query result: 0, name -> price (holds)
+
+-- check discount -> price
+SELECT COUNT(*)
+FROM Sales as s1,
+     Sales as s2
+WHERE s1.discount = s2.discount
+      AND s1.price != s2.price;
+-- query result: 55170, discount -> price (does not hold)
+
+-- check discount -> price
+SELECT COUNT(*)
+FROM Sales as s1,
+     Sales as s2
+WHERE s1.discount = s2.discount
+      AND s1.price != s2.price;
+-- query result: 55170, discount -> price (does not hold)
+
+-- check month -> price
+SELECT COUNT(*)
+FROM Sales as s1,
+     Sales as s2
+WHERE s1.month = s2.month
+      AND s1.price != s2.price;
+-- query result: 13208, month -> price (does not hold)
+
+-- until now we have:
+-- holds: name -> price
+-- X hold: discount -> price
+-- X hold: month -> price
+
+-- let's check 2. name, discount, price -> month
+SELECT COUNT(*)
+FROM Sales as s1,
+     Sales as s2
+WHERE s1.name = s2.name
+      AND s1.discount = s2.discount
+      AND s1.price = s2.price
+      AND s1.month != s2.month;
+-- query result: 1334, name, discount, price -> month (does not hold)
+
+-- This means name -> month (X hold), discount -> month (X hold), and price -> month (X hold)
+
+-- until now we have:
+-- holds: name -> price
+-- X hold: discount -> price
+-- X hold: month -> price
+-- X hold: name -> month
+-- X hold: discount -> month
+-- X hold: price -> month
+
+-- let's check 3. name, month, price -> discount
+SELECT COUNT(*)
+FROM Sales as s1,
+     Sales as s2
+WHERE s1.name = s2.name
       AND s1.month = s2.month
-      AND s1.price = s2.price;
--- query result: 0, which means each (month, price) has unique (name, discount).
+      AND s1.price = s2.price
+      AND s1.discount != s2.discount;
+-- query result: 0, name, month, price -> discount (holds)
 
+-- This means at least one attribute holds X -> discount
+-- let's check individually
 
--- Finally, we have non-trivial FD: 
--- name -> price
--- month -> discount
--- name, month -> price, discount
--- name, discount -> month, price
--- month, price -> name, discount
+-- check name -> discount
+SELECT COUNT(*)
+FROM Sales as s1,
+     Sales as s2
+WHERE s1.name = s2.name
+      AND s1.discount != s2.discount;
+-- query result: 3286, name -> discount (does not hold)
+
+-- check month -> discount
+SELECT COUNT(*)
+FROM Sales as s1,
+     Sales as s2
+WHERE s1.month = s2.month
+      AND s1.discount != s2.discount;
+-- query result: 0, month -> discount (holds)
+
+-- check price -> discount
+SELECT COUNT(*)
+FROM Sales as s1,
+     Sales as s2
+WHERE s1.price = s2.price
+      AND s1.discount != s2.discount;
+-- query result: 14964, price -> discount (does not hold)
+
+-- until now we have:
+-- holds: name -> price
+-- holds: month -> discount
+-- X hold: discount -> price
+-- X hold: month -> price
+-- X hold: name -> month
+-- X hold: discount -> month
+-- X hold: price -> month
+-- X hold: name -> discount
+-- X hold: price -> discount
+
+-- Finally, let's check 4. discount, month, price -> name
+SELECT COUNT(*)
+FROM Sales as s1,
+     Sales as s2
+WHERE s1.discount = s2.discount
+      AND s1.month = s2.month
+      AND s1.price = s2.price
+      AND s1.name != s2.name;
+-- query result: 1492, discount, month, price -> name (does not hold)
+
+-- This means discount -> name (X hold), month -> name (X hold), and price -> name (X hold)
+
+-- Now we have checked all combination of 1 to 1 fds:
+-- holds: name -> price
+-- holds: month -> discount
+-- X hold: discount -> price
+-- X hold: month -> price
+-- X hold: name -> month
+-- X hold: discount -> month
+-- X hold: price -> month
+-- X hold: name -> discount
+-- X hold: price -> discount
+-- X hold: discount -> name
+-- X hold: month -> name
+-- X hold: price -> name
+
+-- Therefore, the only non-trivial we can conclude is name, month -> price, discount
+-- can be derived by the above fds we hold:
+-- {name}+ = {name, price} and {month}+ = {month, discount}
+-- => {name, month}+ = {name, discount, month, price}
+-- we get name, month -> name, discount, month, price, which implies name, month -> discount, price.
+
+-- Now we have all non-trivial fds:
+-- holds: name -> price
+-- holds: month -> discount
+-- holds: name, month -> price, discount
+
+-- * We don't have to check fd like name, discount -> month, price
+-- To be considered hold, it must hold name, discount -> month and name, discount -> price
+-- Since we know name -> month (X hold) and discount -> month (X hold)
+-- So, name, discount -> month (X hold). Hence name, discount -> month, price (X hold)
+
+-- Ans: 
+-- holds: name -> price
+-- holds: month -> discount
+-- holds: name, month -> price, discount
+
 
 
 
@@ -166,9 +202,7 @@ WHERE s1.name != s2.name
 -- we have Fds:
 -- name -> price
 -- month -> discount
--- name, month -> price, discount
--- name, discount -> month, price
--- month, price -> name, discount
+-- name, month -> discount, price
 
 -- R(name, discount, month, price)
 -- {name}+ = {name, price} 

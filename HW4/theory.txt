@@ -65,13 +65,16 @@ d.  Ans: A -> B, B -> C, C -> D, D -> A or (Ａ -> BCD, B -> ACD, C -> ABD, D ->
     * B+ = CDAB
     * C+ = DABC
     * D+ = ABCD
+    * ABCD+ = ABCD
     * {}+ = {}
 
 e.  Ans: B -> C, C -> B, A -> BD, D -> AB 
     * B+ = BC
     * C+ = BC
+    * BC+ = BC
     * A+ = ABCD
     * D+ = ABCD
+    * ABCD+ = ABCD
     * {}+ = {}
 
     Ans can also be B -> C, C -> B, select 1 fd from (1), select 1 fd from (2) 
