@@ -22,12 +22,14 @@ class Caregiver:
         get_caregiver_details = "SELECT Salt, Hash FROM Caregivers WHERE Username = %s"
         try:
             cursor.execute(get_caregiver_details, self.username)
+            if cursor.rowcount == 0:
+                print("Username does not exist!")
             for row in cursor:
                 curr_salt = row['Salt']
                 curr_hash = row['Hash']
                 calculated_hash = Util.generate_hash(self.password, curr_salt)
                 if not curr_hash == calculated_hash:
-                    # print("Incorrect password")
+                    print("Incorrect password!")
                     cm.close_connection()
                     return None
                 else:
